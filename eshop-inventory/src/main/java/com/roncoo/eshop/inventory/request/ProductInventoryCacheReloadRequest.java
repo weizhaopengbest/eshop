@@ -12,6 +12,11 @@ public class ProductInventoryCacheReloadRequest implements Request {
 
     private Integer productId;
 
+    /**
+     * 强制刷新标识
+     */
+    private boolean forceRefresh;
+
     private ProductInventoryService productInventoryService;
 
     public ProductInventoryCacheReloadRequest(Integer productId, ProductInventoryService productInventoryService) {
