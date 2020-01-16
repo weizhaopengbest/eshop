@@ -62,7 +62,7 @@ public class ProductInventoryController {
         ProductInventory productInventory = null;
         try {
             Request request = new ProductInventoryCacheReloadRequest(
-                    productId, productInventoryService);
+                    productId, false, productInventoryService);
             requestAsyncProcessService.process(request);
 
             //将请求扔给service异步处理之后，就需要while true一会，在这里hang住
@@ -93,6 +93,8 @@ public class ProductInventoryController {
             productInventory = productInventoryService.findProductInventory(productId);
             if (productInventory != null) {
                 //将缓存刷新一下
+                request = new ProductInventoryCacheReloadRequest(
+                        productId, true, productInventoryService);
                 requestAsyncProcessService.process(request);
                 return productInventory;
             }

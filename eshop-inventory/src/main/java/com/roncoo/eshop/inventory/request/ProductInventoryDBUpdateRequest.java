@@ -30,6 +30,11 @@ public class ProductInventoryDBUpdateRequest implements Request {
         return productInventory.getProductId();
     }
 
+    @Override
+    public boolean isForceRefresh() {
+        return false;
+    }
+
 
     public ProductInventoryDBUpdateRequest(ProductInventory productInventory, ProductInventoryService productInventoryService) {
         this.productInventory = productInventory;

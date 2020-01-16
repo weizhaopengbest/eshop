@@ -31,7 +31,7 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
 
     @Override
     public void removeProductInventory(ProductInventory productInventory) {
-        String key = "productInventory:" + productInventory.getProductId();
+        String key = "product:inventory:" + productInventory.getProductId();
         redisDao.delete(key);
     }
 
@@ -42,14 +42,14 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
 
     @Override
     public void setProductInventoryCache(ProductInventory productInventory) {
-        String key = "productInventory:" + productInventory.getProductId();
+        String key = "product:inventory:" + productInventory.getProductId();
         redisDao.set(key, String.valueOf(productInventory.getInventoryCnt()));
     }
 
     @Override
     public ProductInventory getProductInventoryCache(Integer productId) {
         Long inventoryCnt = 0L;
-        String key = "productInventory:" + productId;
+        String key = "product:inventory:" + productId;
         String result = redisDao.get(key);
         if (result != null && !"".equals(result)) {
             try {

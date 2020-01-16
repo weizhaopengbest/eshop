@@ -13,18 +13,18 @@ public class ProductInventoryCacheReloadRequest implements Request {
     private Integer productId;
 
     /**
-     * 强制刷新标识
+     * 是否强制刷新标识
      */
     private boolean forceRefresh;
 
     private ProductInventoryService productInventoryService;
 
-    public ProductInventoryCacheReloadRequest(Integer productId, ProductInventoryService productInventoryService) {
+    public ProductInventoryCacheReloadRequest(Integer productId, boolean forceRefresh,
+                                              ProductInventoryService productInventoryService) {
         this.productId = productId;
+        this.forceRefresh = forceRefresh;
         this.productInventoryService = productInventoryService;
     }
-
-
 
     @Override
     public void process() {
@@ -38,6 +38,12 @@ public class ProductInventoryCacheReloadRequest implements Request {
     public Integer getProductId() {
         return productId;
     }
+
+    @Override
+    public boolean isForceRefresh() {
+        return forceRefresh;
+    }
+
 
 
 }

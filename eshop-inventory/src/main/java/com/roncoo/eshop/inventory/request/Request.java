@@ -11,6 +11,8 @@ public interface Request {
 
     Integer getProductId();
 
+    boolean isForceRefresh();
+
 
 
 }
