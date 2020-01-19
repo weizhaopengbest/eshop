@@ -1,31 +1,64 @@
 package com.roncoo.eshop.cache.service.Impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.roncoo.eshop.cache.model.ProductInfo;
+import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.service.CacheService;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.JedisCluster;
+
+import javax.annotation.Resource;
 
 /**
  * @author weizhaopeng
  * @date 2020/1/17
  */
-@Service
+@Service("cacheService")
 public class CacheServiceImpl implements CacheService {
 
-    public static final String CACHE_NAME="local";
+    public static final String CACHE_NAME = "local";
+
+    @Resource
+    private JedisCluster jedisCluster;
 
 
-    @Cacheable(value = CACHE_NAME, key = "'key_'+#id" )
+
+    @Cacheable(value = CACHE_NAME, key = "'product_info_'+#id")
     @Override
-    public ProductInfo findById(Long id) {
+    public ProductInfo getProductInfoFromLocalCache(Long id) {
         return null;
     }
 
-    @CachePut(value = CACHE_NAME, key = "'key_'+#productInfo.getId()" )
+    @Cacheable(value = CACHE_NAME, key = "'shop_info_'+#id")
     @Override
-    public ProductInfo saveProductInfo(ProductInfo productInfo) {
+    public ShopInfo getShopInfoFromLocalCache(Long id) {
+        return null;
+    }
+
+    @CachePut(value = CACHE_NAME, key = "'product_info_'+#productInfo.getId()")
+    @Override
+    public ProductInfo saveProductInfo2LocalCache(ProductInfo productInfo) {
         return productInfo;
+    }
+
+    @Override
+    public void saveProductInfo2RedisCache(ProductInfo productInfo) {
+        String key = "product_info_" + productInfo.getId();
+        jedisCluster.set(key, JSONObject.toJSONString(productInfo));
+    }
+
+    @CachePut(value = CACHE_NAME, key = "'shop_info_'+#shopInfo.getId()")
+    @Override
+    public ShopInfo saveShopInfo2LocalCache(ShopInfo shopInfo) {
+        return shopInfo;
+    }
+
+    @Override
+    public void saveShopInfo2RedisCache(ShopInfo shopInfo) {
+        String key = "shop_info_" + shopInfo.getId();
+        jedisCluster.set(key, JSONObject.toJSONString(shopInfo));
     }
 
 
