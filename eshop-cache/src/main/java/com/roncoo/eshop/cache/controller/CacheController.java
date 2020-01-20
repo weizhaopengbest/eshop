@@ -1,7 +1,9 @@
 package com.roncoo.eshop.cache.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ShopInfo;
+import com.roncoo.eshop.cache.rebuild.RebuildCacheQueue;
 import com.roncoo.eshop.cache.service.CacheService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +46,12 @@ public class CacheController {
         }
         if(productInfo == null){
             //从数据源重新拉取缓存，重建缓存
-
+            String productInfoJSON = "{\"id\": 1, \"name\": \"iphone7手机\", \"price\": 5599, \"pictureList\":\"a.jpg,b.jpg\", " +
+                    "\"specification\": \"iphone7的规格\", \"service\": \"iphone7的售后服务\", \"color\": \"红色,白色,黑色\", " +
+                    "\"size\": \"5.5\", \"shopId\": 1, \"modified_time\":\"2017-01-01 12:01:00\" }";
+            productInfo= JSONObject.parseObject(productInfoJSON, ProductInfo.class);
+            RebuildCacheQueue rebuildCacheQueue = RebuildCacheQueue.getInstance();
+            rebuildCacheQueue.putProductInfo(productInfo);
         }
 
         System.out.println(productInfo.getId() + ":" + productInfo.getName());
@@ -62,6 +69,8 @@ public class CacheController {
         }
         if(shopInfo == null){
             //从数据源重新拉取缓存，重建缓存
+
+
         }
         return shopInfo;
     }

@@ -24,7 +24,6 @@ public class CacheServiceImpl implements CacheService {
     private JedisCluster jedisCluster;
 
 
-
     @Cacheable(value = CACHE_NAME, key = "'product_info_'+#id")
     @Override
     public ProductInfo getProductInfoFromLocalCache(Long id) {
@@ -41,16 +40,22 @@ public class CacheServiceImpl implements CacheService {
     public ProductInfo getProductInfoFromRedisCache(Long id) {
         String key = "product_info_" + id;
         String json = jedisCluster.get(key);
-        ProductInfo productInfo = JSONObject.parseObject(json, ProductInfo.class);
-        return productInfo;
+        if (json != null) {
+            ProductInfo productInfo = JSONObject.parseObject(json, ProductInfo.class);
+            return productInfo;
+        }
+        return null;
     }
 
     @Override
     public ShopInfo getShopInfoFromRedisCache(Long id) {
         String key = "shop_info_" + id;
         String json = jedisCluster.get(key);
-        ShopInfo shopInfo = JSONObject.parseObject(json, ShopInfo.class);
-        return shopInfo;
+        if (json != null) {
+            ShopInfo shopInfo = JSONObject.parseObject(json, ShopInfo.class);
+            return shopInfo;
+        }
+        return null;
     }
 
     @CachePut(value = CACHE_NAME, key = "'product_info_'+#productInfo.getId()")

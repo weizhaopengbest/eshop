@@ -15,6 +15,7 @@ public class ProductInfo {
     private String color;
     private String size;
     private Long shopId;
+    private String modifiedTime;
 
     public ProductInfo() {
 
@@ -85,6 +86,14 @@ public class ProductInfo {
 
     public void setShopId(Long shopId) {
         this.shopId = shopId;
+    }
+
+    public String getModifiedTime() {
+        return modifiedTime;
+    }
+
+    public void setModifiedTime(String modifiedTime) {
+        this.modifiedTime = modifiedTime;
     }
 
     @Override

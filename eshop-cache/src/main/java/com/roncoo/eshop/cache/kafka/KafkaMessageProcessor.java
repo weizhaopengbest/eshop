@@ -5,8 +5,13 @@ import com.roncoo.eshop.cache.model.ProductInfo;
 import com.roncoo.eshop.cache.model.ShopInfo;
 import com.roncoo.eshop.cache.service.CacheService;
 import com.roncoo.eshop.cache.spring.SpringContext;
+import com.roncoo.eshop.cache.zk.ZookeeperSession;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author weizhaopeng
@@ -14,6 +19,7 @@ import kafka.consumer.KafkaStream;
  */
 public class KafkaMessageProcessor implements Runnable {
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private KafkaStream kafkaStream;
 
@@ -55,14 +61,34 @@ public class KafkaMessageProcessor implements Runnable {
     private void processProductInfoChangeMessage(JSONObject messageJSONObject){
         Long productId = messageJSONObject.getLong("productId");
         //调用商品信息服务接口
-        String productInfoJSON = "{\"id\": 1, \"name\": \"iphone7手机\", \"price\": 5599, \"pictureList\":\"a.jpg,b.jpg\", \"specification\": \"iphone7的规格\", \"service\": \"iphone7的售后服务\", \"color\": \"红色,白色,黑色\", \"size\": \"5.5\", \"shopId\": 1}";
+        String productInfoJSON = "{\"id\": 1, \"name\": \"iphone7手机\", \"price\": 5599, \"pictureList\":\"a.jpg,b.jpg\", " +
+                "\"specification\": \"iphone7的规格\", \"service\": \"iphone7的售后服务\", \"color\": \"红色,白色,黑色\", " +
+                "\"size\": \"5.5\", \"shopId\": 1, \"modified_time\":\"2017-01-01 12:00:00\" }";
         ProductInfo productInfo=JSONObject.parseObject(productInfoJSON, ProductInfo.class);
         cacheService.saveProductInfo2LocalCache(productInfo);
 
-        ProductInfo productInfoFromLocalCache = cacheService.getProductInfoFromLocalCache(1L);
+        ProductInfo productInfoFromLocalCache = cacheService.getProductInfoFromLocalCache(productId);
         System.out.println("productInfoFromLocalCache = " + productInfoFromLocalCache);
 
+        //获取zk分布式锁, 防止并发存入
+
+        ZookeeperSession.getInstance().acquireDistributedLock(productId);
+        ProductInfo productInfoFromRedisCache = cacheService.getProductInfoFromRedisCache(productId);
+        if(productInfoFromRedisCache!=null){
+            try {
+                Date date= sdf.parse(productInfoFromRedisCache.getModifiedTime());
+                Date existedDate= sdf.parse(productInfo.getModifiedTime());
+                if(date.before(existedDate)){
+                    System.out.println(" 修改 时间在当前数据之前， 修改失败" );
+                    return;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
         cacheService.saveProductInfo2RedisCache(productInfo);
+        ZookeeperSession.getInstance().releaseDistributedLock(productId);
+
     }
 
     /**
