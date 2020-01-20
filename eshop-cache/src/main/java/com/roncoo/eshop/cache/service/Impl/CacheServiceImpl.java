@@ -37,6 +37,22 @@ public class CacheServiceImpl implements CacheService {
         return null;
     }
 
+    @Override
+    public ProductInfo getProductInfoFromRedisCache(Long id) {
+        String key = "product_info_" + id;
+        String json = jedisCluster.get(key);
+        ProductInfo productInfo = JSONObject.parseObject(json, ProductInfo.class);
+        return productInfo;
+    }
+
+    @Override
+    public ShopInfo getShopInfoFromRedisCache(Long id) {
+        String key = "shop_info_" + id;
+        String json = jedisCluster.get(key);
+        ShopInfo shopInfo = JSONObject.parseObject(json, ShopInfo.class);
+        return shopInfo;
+    }
+
     @CachePut(value = CACHE_NAME, key = "'product_info_'+#productInfo.getId()")
     @Override
     public ProductInfo saveProductInfo2LocalCache(ProductInfo productInfo) {
