@@ -63,12 +63,11 @@ public class KafkaMessageProcessor implements Runnable {
         //调用商品信息服务接口
         String productInfoJSON = "{\"id\": 1, \"name\": \"iphone7手机\", \"price\": 5599, \"pictureList\":\"a.jpg,b.jpg\", " +
                 "\"specification\": \"iphone7的规格\", \"service\": \"iphone7的售后服务\", \"color\": \"红色,白色,黑色\", " +
-                "\"size\": \"5.5\", \"shopId\": 1, \"modified_time\":\"2017-01-01 12:00:00\" }";
+                "\"size\": \"5.5\", \"shopId\": 1, \"modifiedTime\":\"2017-01-01 12:00:00\" }";
         ProductInfo productInfo=JSONObject.parseObject(productInfoJSON, ProductInfo.class);
         cacheService.saveProductInfo2LocalCache(productInfo);
 
-        ProductInfo productInfoFromLocalCache = cacheService.getProductInfoFromLocalCache(productId);
-        System.out.println("productInfoFromLocalCache = " + productInfoFromLocalCache);
+
 
         //获取zk分布式锁, 防止并发存入
 
@@ -86,6 +85,9 @@ public class KafkaMessageProcessor implements Runnable {
                 e.printStackTrace();
             }
         }
+
+        ProductInfo productInfoFromLocalCache = cacheService.getProductInfoFromLocalCache(productId);
+        System.out.println("productInfoFromLocalCache = " + productInfoFromLocalCache);
         cacheService.saveProductInfo2RedisCache(productInfo);
         ZookeeperSession.getInstance().releaseDistributedLock(productId);
 

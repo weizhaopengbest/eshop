@@ -41,6 +41,7 @@ public class RebuildCacheThread implements Runnable {
                     e.printStackTrace();
                 }
             }
+            cacheService.saveProductInfo2LocalCache(productInfo);
             cacheService.saveProductInfo2RedisCache(productInfo);
             ZookeeperSession.getInstance().releaseDistributedLock(productInfo.getId());
         }
